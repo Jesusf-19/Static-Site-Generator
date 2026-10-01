@@ -138,3 +138,14 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
         if original_text != "":
             new_nodes.append(TextNode(original_text, TextType.TEXT))
     return new_nodes
+
+# The Convert to all Markdown to Textnodes using the all the functions
+def text_to_textnodes(text):
+    nodes = [TextNode(text, TextType.TEXT)]
+    italic_done_nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+    bold_done_nodes = split_nodes_delimiter(italic_done_nodes, "**", TextType.BOLD)
+    code_done_nodes = split_nodes_delimiter(bold_done_nodes, "`", TextType.CODE)
+    images_done_nodes = split_nodes_images(code_done_nodes)
+    links_done_nodes = split_nodes_link(images_done_nodes)
+    everything_done_nodes = links_done_nodes
+    return everything_done_nodes
