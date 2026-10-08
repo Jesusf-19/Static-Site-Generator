@@ -149,3 +149,12 @@ def text_to_textnodes(text):
     links_done_nodes = split_nodes_link(images_done_nodes)
     everything_done_nodes = links_done_nodes
     return everything_done_nodes
+
+def text_to_children(text):
+    text_nodes = text_to_textnodes(text)
+    children = []
+
+    for text_node in text_nodes:
+        html_node = text_node_to_html_node(text_node)
+        children.append(html_node)
+    return children
