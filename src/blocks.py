@@ -1,5 +1,5 @@
 from enum import Enum
-from htmlnode import HTMLNode, ParentNode
+from htmlnode import ParentNode
 from textnode import TextNode, TextType, text_node_to_html_node, text_to_textnodes, text_to_children
 
 def markdown_to_blocks(markdown):

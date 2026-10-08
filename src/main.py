@@ -1,6 +1,6 @@
 import os
 import shutil
-
+from gencontent import generate_page
 
 def copy_recursive(source, destination):
     for item in os.listdir(source):
@@ -29,6 +29,8 @@ def copy_static(source, destination):
 
 def main():
     copy_static("static", "public")
+
+    generate_page("content/index.md", "template.html", "public/index.html")
 
 
 if __name__ == "__main__":
