@@ -1,16 +1,52 @@
 # Static-Site-Generator
 
-A static site generator built from scratch using Python. This project converts Markdown content into structured HTML and prepares static assets for a website.
+A static site generator built from scratch using Python. This project converts Markdown content into structured HTML and prepares static assets for a multi-page website that can be published with GitHub Pages.
 
 This project focuses on Python fundamentals, object-oriented programming, recursion, file handling, Markdown parsing, and automated testing.
 
 ## Project Overview
 
-The goal of this project is to build a static site generator without relying on existing Markdown-to-HTML conversion libraries.
+The project was developed incrementally, with each component tested before integration. The completed generator supports recursive Markdown-to-HTML conversion, automatic page generation, static asset management, and deployment through GitHub Pages.
 
-The generator processes Markdown text, identifies its formatting and structure, converts it into HTML nodes, and produces HTML output.
+## Live Website
 
-The project is being developed incrementally, with each component tested before integration.
+**[View the
+website](https://Jesusf-19.github.io/Static-Site-Generator/)**
+
+## Website Preview
+
+![Static Site Generator Homepage](screenshots/homepage.png)
+
+
+## Project Structure
+
+``` text
+static-site-gen/
+├── content/
+│   ├── index.md
+│   ├── blog/
+│   │   ├── glorfindel/index.md
+│   │   ├── tom/index.md
+│   │   └── majesty/index.md
+│   └── contact/index.md
+├── static/
+│   ├── index.css
+│   └── images/
+├── docs/                  # Generated website, committed for GitHub Pages
+├── src/
+│   ├── main.py
+│   ├── gencontent.py
+│   ├── blocks.py
+│   ├── inline_markdown.py
+│   ├── htmlnode.py
+│   ├── textnode.py
+│   └── test_*.py
+├── template.html
+├── main.sh
+├── build.sh
+├── test.sh
+└── README.md
+```
 
 ## Features Implemented
 
@@ -85,22 +121,19 @@ The conversion process:
 Code blocks are handled separately to preserve their original content without applying inline Markdown formatting.
 
 ### 6. Static File Management
+Implemented recursive static file copying to prepare website assets for deployment.
 
-**Current development milestone**
+The generator:
 
-The project is being extended to manage static website assets.
-
-The static-file copying functionality is designed to:
-
-- Copy files from `static/` to `public/`.
+- Copy files from `static/` to `docs/`.
 - Recursively process nested directories.
 - Preserve the original directory structure.
 - Remove previously generated content before copying.
 - Log copied files for debugging.
 
-The `public/` directory is excluded from version control because its contents can be regenerated.
+The docs/ directory contains the generated website and is committed to GitHub for deployment through GitHub Pages.
 
-## Project Structure
+## Project Structure Explanation
 
 The project is organized around separate modules for parsing, HTML generation, and testing.
 
@@ -113,7 +146,7 @@ The project is organized around separate modules for parsing, HTML generation, a
 | `src/blocks.py` | Markdown block splitting and classification |
 | `src/test_*.py` | Unit tests for project components |
 | `static/` | Original website assets |
-| `public/` | Generated website files |
+| `docs/` | Generated website files published through GitHub Pages |
 | `main.sh` | Runs the application |
 | `test.sh` | Runs the unit tests |
 | `.gitignore` | Excludes generated and temporary files |
@@ -128,6 +161,8 @@ The project is organized around separate modules for parsing, HTML generation, a
 - **Git and GitHub** — Version control
 - **Linux / WSL** — Development environment
 
+No third-party Markdown parser is required.
+
 ## Getting Started
 
 ### Prerequisites
@@ -136,87 +171,120 @@ The project is organized around separate modules for parsing, HTML generation, a
 - Git installed
 - A terminal or development environment such as WSL
 
-### Clone the Repository
+## How It Works
 
-Clone the repository using its GitHub URL:
+1.  `main.py` cleans and rebuilds the output directory (`docs/`).
+2.  The static asset copier copies the contents of `static/` into
+    `docs/`.
+3.  `generate_pages_recursive()` walks through every subdirectory of
+    `content/`.
+4.  For each `.md` file, `generate_page()`:
+    -   Reads the Markdown and HTML template.
+    -   Converts Markdown into HTML using `markdown_to_html_node()`.
+    -   Extracts the page's H1 heading using `extract_title()`.
+    -   Replaces the template's title and content placeholders.
+    -   Adjusts root-relative image and link URLs for the selected base
+        path.
+    -   Writes the generated `.html` file into the matching location
+        under `docs/`.
 
-`git clone <repository-url>`
+For example:
 
-Navigate into the project directory:
+``` text
+content/blog/tom/index.md
+            ↓
+docs/blog/tom/index.html
+```
 
-`cd static-site-gen`
+## Run Locally
 
-### Run the Application
+**Requirements:** Python 3, Git, and a terminal with Bash.
 
-From the project root, execute:
+Clone the repository and navigate into it:
 
-`./main.sh`
+``` bash
+git clone https://github.com/Jesusf-19/Static-Site-Generator.git
+cd Static-Site-Generator
+```
 
-During the static-file copying stage, this command prepares the `public/` directory and copies the contents of `static/`.
+Start the local website:
 
-### Run Unit Tests
+``` bash
+./main.sh
+```
 
-Execute:
+Open **http://localhost:8888/** in your browser.
 
-`./test.sh`
+The script generates the site using `/` as the base path, then starts
+Python's built-in HTTP server. Press `Ctrl+C` to stop the server.
 
-This runs the Python unit tests using the `unittest` framework.
+If a script isn't executable, run `chmod +x main.sh build.sh test.sh`.
 
-The tests cover TextNode behavior, HTML generation, Markdown parsing, block classification, and Markdown-to-HTML conversion.
+## Build for GitHub Pages
 
-## Example Markdown Conversion
+Run:
 
-**Input Markdown:**
+``` bash
+./build.sh
+```
 
-`This is **bold** text with an _italic_ word.`
+This generates the production website in `docs/`, using
+`/Static-Site-Generator/` as the base path.
 
-**Generated HTML:**
+The GitHub Pages publishing settings are:
 
-`<div><p>This is <b>bold</b> text with an <i>italic</i> word.</p></div>`
+-   **Source:** Deploy from a branch
+-   **Branch:** `main`
+-   **Folder:** `/docs`
 
-The generator uses nested HTML nodes to construct the output instead of directly manipulating HTML strings throughout the parsing process.
+Because GitHub Pages publishes the generated files, the `docs/`
+directory is committed to the repository. Run `./build.sh` before
+committing any new production changes, especially after running the
+local development script.
 
-## Development Progress
+## Run Tests
 
-**Completed components:**
+``` bash
+./test.sh
+```
 
-- TextNode representation and conversion
-- HTMLNode class hierarchy
-- Inline Markdown parsing
-- Markdown block identification
-- Markdown-to-HTML node conversion
-- Unit tests for parsing and HTML generation
+The unit tests exercise the HTML node classes, Markdown parsing, block
+classification, title extraction, and HTML generation.
 
-**Current focus:**
+## Example
 
-- Recursive static asset copying
-- Integration with `main.py`
+**Markdown input:**
 
-**Upcoming development:**
+``` md
+# My First Page
 
-- Generating HTML pages from Markdown files
-- Integrating HTML templates
-- Building a complete static website
-- Finalizing the project documentation
+This is a **bold** word and an _italic_ word.
+
+- First item
+- Second item
+```
+
+**Generated content:**
+
+``` html
+<div><h1>My First Page</h1><p>This is a <b>bold</b> word and an <i>italic</i> word.</p><ul><li>First item</li><li>Second item</li></ul></div>
+```
+
+The generated content is inserted into the HTML template to create a
+full webpage.
 
 ## What I Learned
 
-This project has provided practical experience with:
+Building this project strengthened my understanding of:
 
-- Object-oriented programming and class inheritance
-- Recursive functions and tree structures
-- String manipulation and regular expressions
-- File and directory management
-- Modular software design
-- Unit testing and debugging
-- Breaking complex problems into smaller reusable functions
-- Integrating independently developed components into a larger application
-
-## Project Status
-
-**In Development**
-
-The Markdown parsing and HTML conversion components have been implemented. Development is continuing toward a complete static site generator capable of generating a website from Markdown source files.
+-   Object-oriented programming, inheritance, and recursive tree
+    structures
+-   Recursive directory traversal and file-system operations
+-   Regular expressions and text parsing
+-   Unit testing and debugging
+-   Separating parsing, rendering, and file generation into reusable
+    modules
+-   Building and deploying a multi-page static website
 
 ## Acknowledgments
 
